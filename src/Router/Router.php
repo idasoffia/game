@@ -1,68 +1,65 @@
 <?php
 
 declare(strict_types=1);
-
 namespace Mos\Router;
 
-use function Mos\Functions\{
-    destroySession,
-    redirectTo,
-    renderView,
-    renderTwigView,
-    sendResponse,
-    url
-};
+use function Mos\Functions\destroySession;
+use function Mos\Functions\redirectTo;
+use function Mos\Functions\renderView;
+use function Mos\Functions\renderTwigView;
+use function Mos\Functions\sendResponse;
+use function Mos\Functions\url;
+use function Mos\Functions\reset;
 
-/**
- * Class Router.
- */
 class Router
 {
     public static function dispatch(string $method, string $path): void
     {
-        if ($method === "GET" && $path === "/") {
+        if ($method === "GET" && $path === "/" || $path === "/dice") {
             $data = [
-                "header" => "Index page",
-                "message" => "Hello, this is the index page, rendered as a layout.",
+                "header" => "Let's roll!",
+                "message" => "Play with a singel die or a dicehand",
             ];
-            $body = renderView("layout/page.php", $data);
+            $body = renderView("layout/dice.php", $data);
             sendResponse($body);
             return;
-        } else if ($method === "GET" && $path === "/session") {
-            $body = renderView("layout/session.php");
-            sendResponse($body);
-            return;
-        } else if ($method === "GET" && $path === "/session/destroy") {
-            destroySession();
-            redirectTo(url("/session"));
-            return;
-        } else if ($method === "GET" && $path === "/debug") {
-            $body = renderView("layout/debug.php");
-            sendResponse($body);
-            return;
-        } else if ($method === "GET" && $path === "/twig") {
+        } else if ($method === "GET" && $path === "/play21") {
             $data = [
-                "header" => "Twig page",
-                "message" => "Hey, edit this to do it youreself!",
+                "header" => "Let's play the game of 21!",
+                "message" => "Play with a singel die or a dicehand",
             ];
-            $body = renderTwigView("index.html", $data);
+
+            $playerNumberOfRolls = 0;
+            $compNumberOfRolls = 0;
+            $_SESSION['rolls'] = array($playerNumberOfRolls, $compNumberOfRolls);
+            $_SESSION['totalScore'] = array(0 , 0);
+            $_SESSION['message'] = "";
+            $_SESSION['winningsPlayer'] = 0;
+            $_SESSION['winningsComp'] = 0;
+            $body = renderView("layout/play21.php", $data);
             sendResponse($body);
             return;
-        } else if ($method === "GET" && $path === "/some/where") {
+        } else if ($method === "POST" && $path === "/play21/go") {
+            $diceQty = (int)$_POST['diceQty'] ?? 1;
+            $faceQty = (int)$_POST['faceQty'] ?? 6;
+            $_SESSION['faceQty'] = $faceQty;
+            $_SESSION['diceQty'] = $diceQty;
+
+            redirectTo(url("/play21/play"));
+            return;
+        } else if ($method === "GET" && $path === "/play21/reset") {
+            reset();
+            redirectTo(url("/play21/play"));
+            return;
+        } else if ($method === "GET" || $method === "POST" && $path === "/play21/play") {
             $data = [
-                "header" => "Rainbow page",
-                "message" => "Hey, edit this to do it youreself!",
+                "header" => "GAME 21",
             ];
-            $body = renderView("layout/page.php", $data);
+
+            $body = renderView("layout/play.php", $data);
             sendResponse($body);
+
             return;
         }
-
-        $data = [
-            "header" => "404",
-            "message" => "The page you are requesting is not here. You may also checkout the HTTP response code, it should be 404.",
-        ];
-        $body = renderView("layout/page.php", $data);
-        sendResponse($body, 404);
     }
 }

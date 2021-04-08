@@ -6,6 +6,9 @@ namespace Mos\Functions;
 
 use Twig\Loader\FilesystemLoader;
 use Twig\Environment;
+use Mos\Dice\ShowDice;
+use Mos\Dice\Dice;
+use Mos\Dice\DiceHand;
 
 /**
  * Functions.
@@ -208,4 +211,76 @@ function destroySession(): void
     }
 
     session_destroy();
+}
+
+function play()
+{
+    if ($_SESSION['diceQty'] == 1) {
+        $computer = new Dice(1);
+        $player = new Dice(1);
+    } else {
+        $computer = new DiceHand($_SESSION['diceQty'], $_SESSION['faceQty']);
+        $player = new DiceHand($_SESSION['diceQty'], $_SESSION['faceQty']);
+    }
+
+
+    $player->roll($_SESSION['diceQty'], $_SESSION['faceQty']);
+    $_SESSION['rolls'][0] =  $player->getRollSum();
+    $_SESSION['totalScore'][0] = $_SESSION['totalScore'][0] + $player->getRollSum();
+
+    if ($_SESSION['totalScore'][0] > 21) {
+        $_SESSION['message'] = "COMPUTER WON!!! <p><a href='" . url('/play21/reset') . "'><input type='submit' value='NEXT ROUND'/></a></p>";
+        $_SESSION['winningsComp'] += 1;
+        return;
+    }
+
+    if ($_SESSION['totalScore'][1] > 21) {
+        $_SESSION['message'] = "YOU WON!!! <p><a href='" . url('/play21/reset') . "'><input type='submit' value='NEXT ROUND'/></a></p>";
+        $_SESSION['winningsPlayer'] += 1;
+        return;
+    }
+
+    if ($_SESSION['totalScore'][1] < 21 && $_SESSION['totalScore'][1] < $_SESSION['totalScore'][0]) {
+        $computer->roll($_SESSION['diceQty'], $_SESSION['faceQty']);
+        $_SESSION['rolls'][1] =  $computer->getRollSum();
+        $_SESSION['totalScore'][1] = $_SESSION['totalScore'][1] + $computer->getRollSum();
+        if ($_SESSION['totalScore'][1] > 21) {
+            $_SESSION['message'] = "YOU WON!!! <p><a href='" . url('/play21/reset') . "'><input type='submit' value='NEXT ROUND'/></a></p>";
+            $_SESSION['winningsPlayer'] += 1;
+            return;
+        }
+    }
+    if ($_SESSION['totalScore'][1] == 21) {
+        $_SESSION['message'] = "COMPUTER WON!!! <p><a href='" . url('/play21/reset') . "'><input type='submit'  value='NEXT ROUND'/></a></p>";
+        $_SESSION['winningsComp'] += 1;
+        return;
+    }
+}
+
+function pass()
+{
+    $computer = new DiceHand($_SESSION['diceQty'], $_SESSION['faceQty']);
+
+    while ($_SESSION['totalScore'][1] <= $_SESSION['totalScore'][0]) {
+        $computer->roll($_SESSION['diceQty'], $_SESSION['faceQty']);
+        $_SESSION['rolls'][1] =  $computer->getRollSum();
+        $_SESSION['totalScore'][1] = $_SESSION['totalScore'][1] + $computer->getRollSum();
+    }
+
+    if ($_SESSION['totalScore'][1] <= 21) {
+        $_SESSION['message'] = "COMPUTER WON!!! <p><a href='" . url('/play21/reset') . "'><input type='submit' value='NEXT ROUND'/></a></p>";
+        $_SESSION['winningsComp'] += 1;
+        return;
+    }
+
+    $_SESSION['message'] = "YOU WON!!! <p><a href='" . url('/play21/reset') . "'><input type='submit' value='NEXT ROUND'/></a></p>";
+    $_SESSION['winningsPlayer'] += 1;
+    return;
+}
+
+function reset()
+{
+    $_SESSION['rolls'] = array(0 , 0);
+    $_SESSION['totalScore'] = array(0 , 0);
+    $_SESSION['message'] = "";
 }

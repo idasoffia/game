@@ -6,11 +6,9 @@
 
 declare(strict_types=1);
 
-use function Mos\Functions\{
-    getBaseUrl,
-    getCurrentUrl,
-    getRoutePath
-};
+use function Mos\Functions\getBaseUrl;
+use function Mos\Functions\getCurrentUrl;
+use function Mos\Functions\getRoutePath;
 
 echo "<h1>Debug details</h1>";
 
