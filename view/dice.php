@@ -12,11 +12,13 @@ $graphicalDie->roll();
 <h1 class="game-title"><?= $header ?></h1>
 <p>Press roll to roll the die!<p>
 
-<form action="<?= url("/dice")?>" method="post" class="numberOfDice">
+<!-- <form action="<?= url("/dice")?>" method="post" class="numberOfDice">
     <button type="submit" name="diceQty" value="1">Roll die!</button>
-</form>
+</form> -->
 
 
-<p>Graphical die rolls</p>
+<p>Graphical die rolls:</p>
 <p><?= $graphicalDie->getLastRoll() ?></p>
 <img src="../htdocs/<?= $graphicalDie->graphic() ?>.png" alt="die">
+
+<p>Hit refresh to roll again</p>

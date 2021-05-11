@@ -8,13 +8,15 @@ declare(strict_types=1);
 
 use function Mos\Functions\play;
 use function Mos\Functions\url;
-use function Mos\Functions\pass;
+use function Mos\Functions\pass21;
+use function Mos\Functions\roll21;
 
 use Mos\Dice\GraphicalDice;
 use Mos\Dice\Dice;
 use Mos\Dice\DiceHand;
 
 $header = $header ?? null;
+$diceQty =  $_SESSION['diceQty'];
 
 ?>
 <h1 class="game-title"><?= $header ?></h1>
@@ -23,9 +25,9 @@ $header = $header ?? null;
 $print = "You are playing with " . $_SESSION['diceQty'] . " dice and each die have " . $_SESSION['faceQty']." faces.";
 echo $print;
 if (array_key_exists('button1', $_POST)) {
-    play();
+    roll21((int)$diceQty);
 } else if (array_key_exists('button2', $_POST)) {
-    pass();
+    pass21((int)$diceQty);
 }
 
 if ($_SESSION['message'] == "") { ?>

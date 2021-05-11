@@ -5,6 +5,7 @@
  */
 
 declare(strict_types=1);
+
 use function Mos\Functions\url;
 
 ?><!doctype html>
@@ -20,9 +21,11 @@ use function Mos\Functions\url;
 
 <header>
     <nav>
-        <a href="<?= url("/") ?>">Graphical Die</a> |
-        <a href="<?= url("/play21") ?>">Play 21</a>
+        <a href="<?= url("/") ?>">Home</a> |
+        <a href="<?= url("/dice") ?>">Dice</a> |
+        <a href="<?= url("/play21") ?>">Game 21</a> |
+        <a href="<?= url("/yatzy") ?>">Yatzy</a>
+
     </nav>
 </header>
 <main>
-    <div class= "wrap">

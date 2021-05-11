@@ -52,4 +52,24 @@ class DiceHand
     {
         return $this->sum;
     }
+
+    public function getLastHandRollArray(int $diceQty): array
+    {
+        $res = array();
+        for ($i = 0; $i < $diceQty; $i++) {
+            $res[$i] = $this->allDice[$i]->getLastRoll();
+        }
+        return $res;
+    }
+
+    public function getType(): string
+    {
+        return $this->type;
+    }
+
+    public function getAllDice(): array
+    {
+        return $this->allDice;
+    }
+
 }

@@ -84,33 +84,33 @@ function renderTwigView(
 
 
 
-/**
- * Send a response to the client.
- *
- * @param int    $status   HTTP status code to send to client.
- *
- * @return void
- */
-function sendResponse(string $body, int $status = 200): void
-{
-    http_response_code($status);
-    echo $body;
-}
+// /**
+//  * Send a response to the client.
+//  *
+//  * @param int    $status   HTTP status code to send to client.
+//  *
+//  * @return void
+//  */
+// function sendResponse(string $body, int $status = 200): void
+// {
+//     http_response_code($status);
+//     echo $body;
+// }
 
 
 
-/**
- * Redirect to an url.
- *
- * @param string $url where to redirect.
- *
- * @return void
- */
-function redirectTo(string $url): void
-{
-    http_response_code(200);
-    header("Location: $url");
-}
+// /**
+//  * Redirect to an url.
+//  *
+//  * @param string $url where to redirect.
+//  *
+//  * @return void
+//  */
+// function redirectTo(string $url): void
+// {
+//     http_response_code(200);
+//     header("Location: $url");
+// }
 
 
 
@@ -149,13 +149,15 @@ function getBaseUrl()
     $parts = parse_url(getCurrentUrl());
 
     // Build the base url from its parts
-    $siteUrl = "{$parts["scheme"]}://{$parts["host"]}"
-        . (isset($parts["port"])
-            ? ":{$parts["port"]}"
-            : "");
-    $baseUrl = $siteUrl . $path;
+    $siteUrl = ($parts["scheme"] ?? null)
+    . "://"
+    . ($parts["host"] ?? null)
+    . (isset($parts["port"])
+        ? ":{$parts["port"]}"
+        : "");
+   $baseUrl = $siteUrl . $path;
 
-    return $baseUrl;
+   return $baseUrl;
 }
 
 
@@ -213,74 +215,95 @@ function destroySession(): void
     session_destroy();
 }
 
-function play()
+function roll21(int $diceQty): void
 {
-    if ($_SESSION['diceQty'] == 1) {
-        $computer = new Dice(1);
-        $player = new Dice(1);
-    } else {
-        $computer = new DiceHand($_SESSION['diceQty'], $_SESSION['faceQty']);
-        $player = new DiceHand($_SESSION['diceQty'], $_SESSION['faceQty']);
-    }
+    $hand = StartGame21($diceQty);
+    $_SESSION['rolls'][0] =  $hand;
+    $_SESSION['totalScore'][0] = $_SESSION['totalScore'][0] + $hand;
 
-
-    $player->roll($_SESSION['diceQty'], $_SESSION['faceQty']);
-    $_SESSION['rolls'][0] =  $player->getRollSum();
-    $_SESSION['totalScore'][0] = $_SESSION['totalScore'][0] + $player->getRollSum();
-
-    if ($_SESSION['totalScore'][0] > 21) {
-        $_SESSION['message'] = "COMPUTER WON!!! <p><a href='" . url('/play21/reset') . "'><input type='submit' value='NEXT ROUND'/></a></p>";
-        $_SESSION['winningsComp'] += 1;
+    if (checkIfOver21("COMPUTER", $_SESSION['totalScore'][0])) {
         return;
     }
 
-    if ($_SESSION['totalScore'][1] > 21) {
-        $_SESSION['message'] = "YOU WON!!! <p><a href='" . url('/play21/reset') . "'><input type='submit' value='NEXT ROUND'/></a></p>";
-        $_SESSION['winningsPlayer'] += 1;
+    if (shouldComputerRoll($_SESSION['totalScore'][0], $_SESSION['totalScore'][1])) {
+        $hand = StartGame21($diceQty);
+        $_SESSION['rolls'][1] =  $hand;
+        $_SESSION['totalScore'][1] = $_SESSION['totalScore'][1] + $hand;
+    }
+
+    if (checkIfOver21("PLAYER", $_SESSION['totalScore'][1])) {
         return;
     }
 
-    if ($_SESSION['totalScore'][1] < 21 && $_SESSION['totalScore'][1] < $_SESSION['totalScore'][0]) {
-        $computer->roll($_SESSION['diceQty'], $_SESSION['faceQty']);
-        $_SESSION['rolls'][1] =  $computer->getRollSum();
-        $_SESSION['totalScore'][1] = $_SESSION['totalScore'][1] + $computer->getRollSum();
-        if ($_SESSION['totalScore'][1] > 21) {
-            $_SESSION['message'] = "YOU WON!!! <p><a href='" . url('/play21/reset') . "'><input type='submit' value='NEXT ROUND'/></a></p>";
-            $_SESSION['winningsPlayer'] += 1;
-            return;
-        }
-    }
-    if ($_SESSION['totalScore'][1] == 21) {
-        $_SESSION['message'] = "COMPUTER WON!!! <p><a href='" . url('/play21/reset') . "'><input type='submit'  value='NEXT ROUND'/></a></p>";
-        $_SESSION['winningsComp'] += 1;
+    if (checkIf21($_SESSION['totalScore'][1])) {
         return;
     }
 }
 
-function pass()
+function pass21(int $diceQty): void
 {
-    $computer = new DiceHand($_SESSION['diceQty'], $_SESSION['faceQty']);
-
     while ($_SESSION['totalScore'][1] <= $_SESSION['totalScore'][0]) {
-        $computer->roll($_SESSION['diceQty'], $_SESSION['faceQty']);
-        $_SESSION['rolls'][1] =  $computer->getRollSum();
-        $_SESSION['totalScore'][1] = $_SESSION['totalScore'][1] + $computer->getRollSum();
+        $hand = StartGame21($diceQty);
+        $_SESSION['rolls'][1] =  $hand;
+        $_SESSION['totalScore'][1] = $_SESSION['totalScore'][1] + $hand;
     }
 
     if ($_SESSION['totalScore'][1] <= 21) {
-        $_SESSION['message'] = "COMPUTER WON!!! <p><a href='" . url('/play21/reset') . "'><input type='submit' value='NEXT ROUND'/></a></p>";
+        $_SESSION['message'] = "COMPUTER WON!!! <p><a href='" . url('/play21/reset') . "'><input type='submit' class='new-game-button' value='NEXT ROUND'/></a></p>";
         $_SESSION['winningsComp'] += 1;
         return;
     }
 
-    $_SESSION['message'] = "YOU WON!!! <p><a href='" . url('/play21/reset') . "'><input type='submit' value='NEXT ROUND'/></a></p>";
+    $_SESSION['message'] = "YOU WON!!! <p><a href='" . url('/play21/reset') . "'><input type='submit' class='new-game-button' value='NEXT ROUND'/></a></p>";
     $_SESSION['winningsPlayer'] += 1;
     return;
 }
 
-function reset()
+function resetGame()
 {
     $_SESSION['rolls'] = array(0 , 0);
     $_SESSION['totalScore'] = array(0 , 0);
     $_SESSION['message'] = "";
+}
+
+function StartGame21(int $diceQty): int
+{
+    $hand = new DiceHand($diceQty, "regular");
+    $faces = $_SESSION['faceQty'];
+    $hand->roll($diceQty, $faces);
+    $rolled =  $hand->getRollSum();
+    return $rolled;
+}
+
+function shouldComputerRoll(int $playerScore, int $computerScore): bool
+{
+    if ($computerScore < 21 && $computerScore < $playerScore) {
+        return true;
+    }
+    return false;
+}
+
+function checkIfOver21(string $who, int $total): bool
+{
+    if ($total > 21) {
+        $_SESSION['message'] = $who . " WON!!! <p><a href='" . url('/play21/reset') . "'><input type='submit' class='new-game-button' value='NEXT ROUND'/></a></p>";
+        if ($who === "COMPUTER") {
+            $_SESSION['winningsComp'] += 1;
+        }
+        if ($who === "YOU") {
+            $_SESSION['winningsPlayer'] += 1;
+        }
+        return true;
+    }
+    return false;
+}
+
+function checkIf21(int $total): bool
+{
+    if ($total == 21) {
+        $_SESSION['message'] = "COMPUTER WON!!! <p><a href='" . url('/play21/reset') . "'><input type='submit' class='new-game-button' value='NEXT ROUND'/></a></p>";
+        $_SESSION['winningsComp'] += 1;
+        return true;
+    }
+    return false;
 }
