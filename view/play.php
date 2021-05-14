@@ -19,6 +19,7 @@ $header = $header ?? null;
 $diceQty =  $_SESSION['diceQty'];
 
 ?>
+<div class="wrap">
 <h1 class="game-title"><?= $header ?></h1>
 
 <?php
@@ -49,3 +50,5 @@ if ($_SESSION['message'] == "") { ?>
 
 </div>
 <p><a href='<?= url('/play21')?>'><input type='submit' value='Reset'/></a></p>
+
+</div>

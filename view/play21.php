@@ -8,6 +8,7 @@ use function Mos\Dice\GraphicalDice;
 $header = $header ?? null;
 $message = $message ?? null;
 ?>
+<div class="wrap">
 <h1 class="game-title"><?= $header ?></h1>
 <p>Start by choosing how many dice you want to play with<p>
 
@@ -33,3 +34,5 @@ $message = $message ?? null;
 
     <button type="submit" class="new-game-button" name="start" value="Play">Play</button>
 </form>
+
+</div>

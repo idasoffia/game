@@ -33,7 +33,7 @@ class Yatzy
         $this->uploadChart();
 
         $data = [
-            "header" => "Yatzy",
+            "header" => "Let play some Yatzy!",
         ];
 
         $body = renderView("layout/yatzy.php", $data);

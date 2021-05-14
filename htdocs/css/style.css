@@ -8,8 +8,7 @@ body {
 
 main {
     min-height: 20em;
-    color: silver;
-    text-shadow: 2px 2px black;
+    color: black;
     margin: 10px;
     padding: 10px;
     width: 800px;
@@ -24,6 +23,24 @@ main {
     height: 80%;
     width: 80%;
     box-shadow: 2px 2px black;
+}
+
+ul {
+    list-style: none;
+    display: inline;
+}
+
+li {
+    display: inline;
+}
+
+.roll-button {
+    margin: 20px;
+}
+
+.ScoreChart{
+    background-color: lightgrey;
+    padding: 20px;
 }
 
 footer {

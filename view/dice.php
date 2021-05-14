@@ -9,6 +9,7 @@ $message = $message ?? null;
 $graphicalDie = new GraphicalDie();
 $graphicalDie->roll();
 ?>
+<div class="wrap">
 <h1 class="game-title"><?= $header ?></h1>
 <p>Press roll to roll the die!<p>
 
@@ -22,3 +23,5 @@ $graphicalDie->roll();
 <img src="../htdocs/<?= $graphicalDie->graphic() ?>.png" alt="die">
 
 <p>Hit refresh to roll again</p>
+
+</div>
